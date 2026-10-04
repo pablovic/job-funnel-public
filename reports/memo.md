@@ -10,6 +10,8 @@ So I built a pipeline that does that reading for me. Every weekday morning it pu
 
 The practical result: **from 11–15 roles a week to a pool of 30–35, reviewed in 30–60 minutes instead of 4 hours.** That's more than twice the volume, in a quarter of the time or less.
 
+That solved the first half of the problem: **finding and filtering**. It also made the second half visible. With the reading handled, the bottleneck is no longer how many roles I can evaluate; it's **how many of my applications turn into a real conversation**, at the salary I'm aiming for. That's phase two.
+
 ## 1. The bottleneck was reading, not judging
 
 Before building anything, I looked at where my time actually went. My yes/no calls were quick once I knew the facts. What took hours was getting to the facts: scrolling a long posting to find out, at the bottom, that it was "US only" or came through an agency.
@@ -49,19 +51,35 @@ The search runs as a **GitHub Actions workflow every weekday at 08:00**, against
 
 It's built to survive bad mornings: each source runs and saves on its own, so if one API is down, the others still deliver, and the run reports exactly which source failed. Tests run automatically on every change, so a mistake gets caught before it reaches the daily search.
 
-## What I'd do next
+## 6. What the funnel shows so far
 
-1. **Add sources one at a time.** Ashby and Lever company boards first (they work like the Greenhouse boards I already use), then Himalayas. Each source has its own quirks, so each comes with its own tests.
-2. **Widen the keyword queries** for BI and data science roles, which match my background but are under-covered today.
-3. **Measure the scorer against my own labels.** Every yes/maybe/no I make is ground truth. With enough of them, I can check whether the score actually ranks roles the way I do, and tune the weights with evidence instead of instinct.
+The first fully automated week is the clearest picture of what changed:
+
+- **268 roles surfaced** in one week. Part of that was the backlog of postings already open when the search started; the following week, with duplicates removed, it was 16 new ones.
+- **203 of them (76%) were filtered out automatically**, without me reading a single one: wrong country, staffing agencies, onsite, pay below my floor, or not a data role at all.
+- **65 reached me for a decision**, and 29 survived the quick pass.
+- On the close read, **32 were dropped** and 7 became applications. The third filter is doing real work: most of what looked good at a glance didn't hold up on a proper read.
+
+For comparison: before the app, over about a month, I read **roughly 60 postings by hand to send 31 applications**. Each one had to be found, read, saved, read closely a second time, and only then applied to. In its first automated week alone, the app surfaced 268 roles, discarded 203 before I opened any, and put 65 in front of me: **about as many as I used to read in a whole month**, already filtered and scored. (The 60 is my own estimate. My spreadsheet from that period only recorded applications, not everything I read to get there; that unrecorded effort is exactly what the app now measures.)
+
+## Phase two: from more applications to better answers
+
+Finding and filtering are solved well enough. The next problem is the one that actually decides the outcome: **response rate**, and getting called for roles at the salary I'm targeting. This is how I plan to approach it, using the data the app already collects:
+
+1. **Measure the right "response".** Today the funnel counts any answer as a response, and a rejection email is an answer. The useful number is the share of applications that reach a screening call or further. That's the metric I'll track.
+2. **Learn what's missing from the gaps.** Every scored posting already lists the requirements I don't fully meet, quoted from the posting. Aggregated across the applications that went nowhere, that becomes a ranked list of what the market is asking for that my profile doesn't show yet: a skill to build, or experience I have but my CV doesn't make visible.
+3. **Refine the CV, honestly.** At my volume, a proper A/B test between two CV versions would need on the order of a thousand applications per version; I have dozens. So I won't pretend to "test" CVs. I'll change one thing at a time, keep the change log, and read the results as signals, not proof.
+4. **Calibrate the salary target.** The app records the pay I ask for and the ranges postings publish. Comparing the two, and which applications move forward, will show whether my target is helping or costing me interviews.
+
+Adding more sources (Ashby and Lever company boards, Himalayas) is still on the list, but it's no longer the priority. More roles at the top of the funnel won't help until more of the bottom converts.
 
 ## What this project can and can't say
 
 I want to be straight about this part.
 
 - **The time savings are my own before-and-after.** Same kind of search, same person, before and after the tool. It's a real change in my week, but it isn't a controlled comparison, and some of the improvement comes simply from having a routine.
-- **More roles isn't the same as better outcomes.** The tool shows me more of the right kind of role faster. Whether that turns into more interviews is a separate question, and it will take months of data to answer.
+- **More roles isn't the same as better outcomes.** The tool shows me more of the right kind of role faster. Whether that turns into more interviews is a separate question, and it's exactly what phase two is about.
 - **The funnel can't pick my best CV.** At my volume, a fair comparison between two CV versions would need on the order of a thousand applications per version. The funnel is good at spotting leaks (roles I liked but never applied to), not at A/B conclusions. I built it knowing that, and I'd rather name the limit than declare a winner from twenty applications.
 - **Some sources are partial.** Roles from sources that don't send a description are scored on metadata only, and the app flags them. For those, I always open the original posting before deciding.
 
-The honest summary: this didn't make me a better judge of jobs. It gave me back the hours I was spending to *get to* the judgment, and that's what I set out to fix.
+The honest summary: this didn't make me a better judge of jobs. It gave me back the hours I was spending to *get to* the judgment, and showed me where the real bottleneck is now. Phase one was speed. Phase two is conversion.
