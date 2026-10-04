@@ -1,0 +1,15 @@
+
+/* ================================================================= celular
+   El deck en el telefono: los botones viven abajo, fijos, al alcance del
+   pulgar. Sin esto quedan al final de la columna y hay que scrollear todo el
+   aviso para decidir. 48px de alto: el minimo comodo para un dedo. */
+@media (max-width: 780px) {
+  .decide {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+    margin: 0; padding: 0.75rem 16px calc(0.75rem + env(safe-area-inset-bottom));
+    background: var(--paper); border-top: 1px solid var(--rule);
+  }
+  .decide button { flex: 1; min-height: 48px; font-size: 1rem; }
+  .triage { padding-bottom: 5.5rem; } /* que la barra no tape lo ultimo */
+  .masthead nav { flex-wrap: wrap; gap: 0.75rem; }
+}

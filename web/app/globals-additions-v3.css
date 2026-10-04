@@ -1,0 +1,27 @@
+/* ================================================================= v3
+   Los botones del tercer filtro en /apply.
+   Pegar al final de globals.css. No reemplaza nada anterior. */
+
+.act-col { text-align: right; white-space: nowrap; width: 1%; }
+
+.row-actions { display: inline-flex; gap: 0.35rem; }
+.row-actions button {
+  padding: 0.2rem 0.55rem;
+  font-size: 0.8125rem;
+  line-height: 1.3;
+}
+/* Indigo = accionable. Enviar la postulacion es LA accion de esta pantalla. */
+.row-actions button[data-a="sent"] { border-color: var(--act); color: var(--act); }
+/* Descartar no se pinta de rojo: no es un error ni un peligro, es una decision
+   normal y reversible. Se deja apagado para que no compita con la de arriba. */
+.row-actions button[data-a="drop"] { color: var(--ink-soft); }
+.row-actions button:disabled { opacity: 0.45; cursor: default; }
+
+/* La tarjeta del puntaje abre hacia abajo; en las ultimas filas de una tabla
+   larga eso la manda fuera de la vista. Un poco de aire al final alcanza. */
+main > table:last-of-type { margin-bottom: 14rem; }
+
+@media (max-width: 780px) {
+  .act-col { text-align: left; }
+  .row-actions { gap: 0.25rem; }
+}

@@ -1,0 +1,97 @@
+# =============================================================================
+# pull.yml - la busqueda diaria.
+#
+# Un "workflow" es una receta que GitHub ejecuta en una computadora suya, que
+# se llama "runner": una maquina Linux limpia que se crea para cada corrida y
+# se destruye al terminar. Nada queda instalado de una vez a la otra, por eso
+# cada corrida instala Python y las dependencias desde cero.
+#
+# Este workflow hace lo mismo que harias a mano en tu terminal:
+#     python -m app.cli pull-all
+# pero en la maquina de GitHub, conectandose a la base en Neon.
+# =============================================================================
+
+name: daily-pull
+
+# ----------------------------------------------------------------- CUANDO corre
+on:
+  # "cron" tiene cinco campos:  minuto  hora  dia-del-mes  mes  dia-de-la-semana
+  # y SIEMPRE esta en UTC, no en tu hora local.
+  #
+  #   "0 11 * * 1-5"  =  minuto 0, hora 11 UTC, cualquier dia, cualquier mes,
+  #                      de lunes (1) a viernes (5).
+  #
+  # Sao Paulo es UTC-3, asi que 11:00 UTC son las 08:00 tuyas.
+  # Ojo: GitHub no garantiza la hora exacta. Con mucha carga puede arrancar
+  # con un rato de demora. Para una busqueda diaria da igual.
+  schedule:
+    - cron: "0 11 * * 1-5"
+
+  # Agrega un boton "Run workflow" en la pestana Actions del repo, para
+  # correrlo a mano cuando quieras. Es como se prueba la primera vez.
+  workflow_dispatch:
+
+# ----------------------------------------------------------------- QUE hace
+jobs:
+  pull:
+    # Apagado por defecto en este repo publico: no tiene base de datos conectada.
+    # Para encenderlo en tu propia copia:
+    #   1. Settings > Secrets and variables > Actions > Secrets: DATABASE_URL
+    #   2. En la pestana Variables de la misma pagina: DAILY_PULL = true
+    # Sin la variable, el job aparece como "skipped" (salteado), no como error.
+    if: ${{ vars.DAILY_PULL == 'true' }}
+    runs-on: ubuntu-latest
+
+    # Si algo se cuelga, GitHub lo corta a los 15 minutos en vez de dejarlo
+    # corriendo. Una busqueda normal tarda uno o dos.
+    timeout-minutes: 15
+
+    steps:
+      # 1. Bajar el codigo de este repo a la maquina de GitHub.
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Instalar Python. `cache: pip` guarda las dependencias descargadas
+      #    entre corridas: la primera vez tarda un minuto, despues segundos.
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: api/pyproject.toml
+
+      # 3. Instalar la app y sus dependencias, desde el mismo pyproject.toml
+      #    que usa Docker en tu maquina.
+      - name: Install
+        run: pip install -e ./api
+
+      # 4. La busqueda.
+      #
+      #    DATABASE_URL sale de un "secret": un valor que guardas en la
+      #    configuracion del repo, que GitHub guarda cifrado, y que nunca
+      #    aparece ni en el codigo ni en los logs (si se imprimiera, sale
+      #    tapado con ***). Por eso la contrasena de la base no esta en ningun
+      #    archivo del repo.
+      #
+      #    Lo que imprime pull-all se copia ademas al "job summary": el
+      #    resumen que ves en la pagina de la corrida, sin abrir los logs.
+      - name: Pull all sources
+        working-directory: api
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        # `shell: bash` activa "pipefail": si pull-all falla, el paso falla,
+        # aunque despues venga `tee`. Sin esto, el error quedaria tapado.
+        shell: bash
+        run: |
+          python -m app.cli pull-all | tee pull.log
+          {
+            echo "### Busqueda de hoy"
+            echo '```'
+            cat pull.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # Nota: el aviso de seguimientos (`python -m app.cli nudge`) NO corre aca.
+      # Imprime las empresas a las que postulaste, y en un repo publico los logs
+      # de Actions los puede leer cualquiera. Se corre en tu PC:
+      #     docker compose exec api python -m app.cli nudge

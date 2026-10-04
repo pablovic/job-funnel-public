@@ -1,0 +1,34 @@
+# Que NO se sube a GitHub.
+# Git lee este archivo antes de cada commit y deja afuera todo lo que coincide.
+
+# --- Secretos: jamas al repo -------------------------------------------------
+# api/.env tiene la contrasena de la base. Si se sube, cualquiera con acceso al
+# repo puede entrar a tus datos. (.env.example si se sube: no tiene secretos.)
+.env
+
+# --- Datos personales ---------------------------------------------------------
+# Tus postulaciones reales: empresas, fechas, sueldos.
+api/*.csv
+logs/
+
+# --- Python: se regeneran solos ------------------------------------------------
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+.venv/
+venv/
+
+# --- Node / Next.js: se regeneran con npm install / npm run dev ----------------
+node_modules/
+.next/
+*.tsbuildinfo
+next-env.d.ts
+
+# --- Sistema --------------------------------------------------------------------
+Thumbs.db
+.DS_Store
+
+# --- Herramientas de una sola vez -------------------------------------------------
+organizar.py

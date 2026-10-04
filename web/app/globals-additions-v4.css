@@ -1,0 +1,30 @@
+/* ================================================================= pipeline
+   El selector de etapa dentro de la tabla.
+   Pegar al final de globals.css. */
+
+.stage-pick {
+  font: inherit;
+  font-size: 0.8125rem;
+  padding: 0.15rem 0.3rem;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+.stage-pick:focus-visible { outline: 2px solid var(--act); outline-offset: 1px; }
+.stage-pick:disabled { opacity: 0.45; cursor: default; }
+
+/* El color dice en que termino, no adorna: verde avanzo, rojo se cerro,
+   ocre sigue abierto sin noticias. */
+.stage-pick.s-screening,
+.stage-pick.s-technical,
+.stage-pick.s-onsite,
+.stage-pick.s-offer    { border-color: var(--moved);   color: var(--moved); }
+.stage-pick.s-rejected,
+.stage-pick.s-withdrawn { border-color: var(--dropped); color: var(--dropped); }
+.stage-pick.s-ghosted   { color: var(--ink-soft); }
+.stage-pick.s-ack       { border-color: var(--act);    color: var(--act); }
+
+/* El link al aviso original, chiquito al lado del titulo. */
+.ext { text-decoration: none; color: var(--ink-soft); }

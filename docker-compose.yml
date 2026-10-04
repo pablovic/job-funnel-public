@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: funnel
+      POSTGRES_PASSWORD: funnel
+      POSTGRES_DB: funnel
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./api/db:/docker-entrypoint-initdb.d:ro   # schema.sql then views.sql, alphabetical
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U funnel"]
+      interval: 5s
+
+  api:
+    build: ./api
+    env_file: ./api/.env
+    depends_on:
+      db: {condition: service_healthy}
+    ports: ["8000:8000"]
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes: ["./api:/srv"]
+
+volumes:
+  pgdata:

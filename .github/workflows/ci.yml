@@ -1,0 +1,44 @@
+# =============================================================================
+# ci.yml - corre los tests cada vez que subis cambios.
+#
+# "CI" es Continuous Integration: cada push se verifica solo, en una maquina
+# limpia. Si algo se rompio, lo ves en el repo (cruz roja) y te llega un mail,
+# antes de que el error llegue a la busqueda diaria.
+#
+# No necesita la base de datos ni ningun secret: los tests estan escritos para
+# correr sin Postgres. Por eso este workflow no toca DATABASE_URL.
+# =============================================================================
+
+name: tests
+
+on:
+  push:              # cada vez que subis commits
+  workflow_dispatch: # y a mano, con el boton de la pestana Actions
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: api/pyproject.toml
+
+      # [dev] agrega pytest, que la app en si no necesita para correr.
+      - name: Install
+        run: pip install -e "./api[dev]"
+
+      - name: Run tests
+        working-directory: api
+        run: python -m pytest -q
+
+      # Proxima leccion: agregar aca `ruff check .` (el revisor de estilo).
+      # Hoy encuentra 32 cosas para corregir, y un CI que arranca en rojo
+      # no ensena nada. Primero verde, despues mas exigente.
