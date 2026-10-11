@@ -1,18 +1,19 @@
 import Link from "next/link";
 import { LeakBar } from "@/components/LeakBar";
+import { PageHead } from "@/components/PageHead";
 import { api } from "@/lib/api";
 import type { Opportunity } from "@/lib/types";
-import { ApplyTable } from "./ApplyTable";
+import { ApplyBoard } from "./ApplyBoard";
 
 /**
- * The apply list — and the third filter.
+ * The apply board — and the third filter.
  *
  * /triage is the quick pass: a glance, y/m/n, twenty postings in ten minutes.
  * This is the slow pass: the posting gets read properly, and only then does it
  * become an application or get dropped. Three filters, each cheaper than the
  * one after it, which is the whole point of having three.
  *
- * The maybes live here too. A "maybe" in the deck means "five seconds is not
+ * The maybes live here too. A "maybe" in Decide means "five seconds is not
  * enough to tell" — so it has to land somewhere that gives it five minutes.
  * Without that, deciding "maybe" is the same as deciding nothing, and the
  * posting quietly disappears.
@@ -22,27 +23,25 @@ export const dynamic = "force-dynamic";
 const byFit = (a: Opportunity, b: Opportunity) => (b.fit ?? 0) - (a.fit ?? 0);
 
 export default async function ApplyPage() {
-  let yes: Opportunity[] = [];
-  let maybe: Opportunity[] = [];
+  let rows: Opportunity[] = [];
   let failed = false;
   try {
-    // include_archived: la seccion de descartadas necesita verlas para deshacer.
-    [yes, maybe] = await Promise.all([
+    // include_archived: la columna de descartadas necesita verlas para deshacer.
+    // Se pide tambien para los maybe: antes un maybe descartado desaparecia de la
+    // pantalla y no habia forma de deshacerlo.
+    const [yes, maybe] = await Promise.all([
       api.get<Opportunity[]>("/opportunities?verdict=yes&limit=200&include_archived=true"),
-      api.get<Opportunity[]>("/opportunities?verdict=maybe&limit=200"),
+      api.get<Opportunity[]>("/opportunities?verdict=maybe&limit=200&include_archived=true"),
     ]);
+    rows = [...yes, ...maybe].sort(byFit);
   } catch {
     failed = true;
   }
 
-  const dropped = yes.filter((r) => r.status === "archived").sort(byFit);
-  const sent = yes.filter((r) => r.status !== "archived" && r.applied).sort(byFit);
-  const pending = yes.filter((r) => r.status !== "archived" && !r.applied).sort(byFit);
-  const pendingMaybe = maybe.filter((r) => r.status !== "archived" && !r.applied).sort(byFit);
-
   if (failed) {
     return (
-      <main>
+      <main className="page">
+        <PageHead title="Apply" />
         <LeakBar />
         <div className="empty">
           <h2>The API is not answering.</h2>
@@ -55,78 +54,35 @@ export default async function ApplyPage() {
     );
   }
 
-  if (!yes.length && !maybe.length) {
+  if (!rows.length) {
     return (
-      <main>
+      <main className="page">
+        <PageHead title="Apply" />
         <LeakBar />
         <div className="empty">
           <h2>Nothing decided yet.</h2>
           <p>
-            Work through the deck first. Everything you mark yes or maybe lands here
+            Work through Decide first. Everything you mark yes or maybe lands here
             with its score, its gaps and the CV to send.
           </p>
-          <Link href="/triage">Open the deck</Link>
+          <Link href="/triage" className="btn btn-primary">
+            Open Decide
+          </Link>
         </div>
       </main>
     );
   }
 
+  const waiting = rows.filter((r) => r.status !== "archived" && !r.applied).length;
+
   return (
-    <main>
+    <main className="page page--board">
+      <PageHead title="Apply" count={waiting} countLabel="to review">
+        The close read. Read the posting properly, then move it to Applied to log it or to
+        Dropped to file it away: drag the card, or use the ⋮ menu. Drops are kept, never deleted.
+      </PageHead>
       <LeakBar />
-
-      <h2 className="section-head">
-        To apply <span className="count">{pending.length}</span>
-      </h2>
-      <p className="hint">
-        Read the posting, then decide. <b>Applied</b> logs it and moves it to
-        Applications; <b>Drop</b> files it away and can be undone. Hover a role to
-        see how its score was built.
-      </p>
-
-      {pending.length === 0 ? (
-        <p className="hint">
-          Nothing waiting. Back to the <Link href="/triage">deck</Link>.
-        </p>
-      ) : (
-        <ApplyTable rows={pending} mode="pending" />
-      )}
-
-      {pendingMaybe.length > 0 && (
-        <>
-          <h2 className="section-head">
-            Maybe — needs a closer look{" "}
-            <span className="count">{pendingMaybe.length}</span>
-          </h2>
-          <p className="hint">
-            Five seconds was not enough in the deck. Open the posting and settle it:{" "}
-            <b>Yes</b> moves it up to the list above, <b>Drop</b> files it away. A
-            maybe you never come back to is a no you never admitted.
-          </p>
-          <ApplyTable rows={pendingMaybe} mode="maybe" />
-        </>
-      )}
-
-      {sent.length > 0 && (
-        <>
-          <h2 className="section-head muted">
-            Already applied <span className="count">{sent.length}</span>
-          </h2>
-          <ApplyTable rows={sent} mode="applied" />
-        </>
-      )}
-
-      {dropped.length > 0 && (
-        <>
-          <h2 className="section-head muted">
-            Dropped on review <span className="count">{dropped.length}</span>
-          </h2>
-          <p className="hint">
-            Passed the quick filter, did not survive a close read. Kept, not deleted.
-          </p>
-          <ApplyTable rows={dropped} mode="dropped" />
-        </>
-      )}
+      <ApplyBoard rows={rows} />
     </main>
   );
 }

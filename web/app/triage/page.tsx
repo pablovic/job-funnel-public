@@ -1,11 +1,9 @@
-import { LeakBar } from "@/components/LeakBar";
-import { TriageDeck } from "./TriageDeck";
+import { TriageList } from "./TriageList";
 
 export default function TriagePage() {
   return (
-    <main>
-      <LeakBar />
-      <TriageDeck />
+    <main className="page">
+      <TriageList />
     </main>
   );
 }

@@ -160,3 +160,111 @@ export function money(o: {
   const hi = Math.round(o.comp_usd_year_max / 1000);
   return lo && lo !== hi ? `$${lo}k–$${hi}k` : `$${hi}k`;
 }
+
+/* ===================================================================== vista
+   Todo lo de abajo es PRESENTACIÓN: decide cómo se muestra el puntaje, no cómo
+   se calcula. Si cambian los pesos, se cambian arriba; esto no se toca. */
+
+/** El orden en que se nombran las seis dimensiones. Es el orden de las etiquetas. */
+export const DIM_ORDER = ["craft", "domain", "level_fit", "comp", "language", "channel"];
+
+/** high = verde, mid = ocre, low = gris. Un solo lugar para cambiar los cortes. */
+export type Tier = "high" | "mid" | "low";
+
+/** Puntaje total (0–100) → color del anillo. */
+export function fitTier(fit: number | null | undefined): Tier | "none" {
+  if (fit == null) return "none";
+  // Se redondea primero: el anillo muestra el número redondeado, y un 64,6 que se
+  // ve como "65" no puede tener un color distinto al de otro "65".
+  const shown = Math.round(fit);
+  if (shown >= 80) return "high";
+  if (shown >= 65) return "mid";
+  return "low";
+}
+
+/** Valor de una dimensión (0–10) → color de su etiqueta. */
+export function dimTier(v: number): Tier {
+  if (v >= 8) return "high";
+  if (v >= 5) return "mid";
+  return "low";
+}
+
+export const dimLabel = (key: string) => key.replace(/_/g, " ");
+
+/** Las dimensiones en el orden de DIM_ORDER; las que no conozca van al final. */
+export function orderedDimensions(
+  dimensions: Record<string, number> | null | undefined,
+): [string, number][] {
+  if (!dimensions) return [];
+  const known = DIM_ORDER.filter((k) => k in dimensions).map(
+    (k) => [k, dimensions[k]] as [string, number],
+  );
+  const rest = Object.entries(dimensions).filter(([k]) => !DIM_ORDER.includes(k));
+  return [...known, ...rest];
+}
+
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * El título tal como lo guarda la base a veces trae la empresa pegada
+ * ("Data Analyst — Marlin Freight"). En pantalla la empresa ya va aparte, así
+ * que se la saca del título para no leerla dos veces.
+ */
+export function roleName(title: string, company: string | null): string {
+  if (!company) return title;
+  const co = escapeRe(company.trim());
+  const cleaned = title
+    .replace(new RegExp(`\\s*(?:[—–|@-]|\\bat\\b)\\s*${co}\\s*$`, "i"), "")
+    .replace(new RegExp(`^\\s*${co}\\s*[—–|:-]\\s*`, "i"), "")
+    .trim();
+  return cleaned || title;
+}
+
+/** "Saltmarsh Logistics" → "SL". Para el cuadradito donde iría un logo. */
+export function initials(name: string | null): string {
+  if (!name) return "?";
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  const letters = (words.length > 1 ? words.slice(0, 2) : [words[0]]).map((w) => w[0]);
+  return (words.length > 1 ? letters.join("") : words[0].slice(0, 2)).toUpperCase();
+}
+
+/**
+ * "3 days ago". Usa la hora actual, así que SOLO va en componentes que se
+ * dibujan después de cargar (la lista de Decide, el panel). En una pantalla que
+ * el servidor ya armó, el servidor y el navegador podrían calcular valores
+ * distintos y React protestaría; ahí se muestran fechas ISO.
+ */
+export function timeAgo(iso: string, now: number = Date.now()): string {
+  const days = Math.floor((now - new Date(iso).getTime()) / 86_400_000);
+  if (days <= 0) return "today";
+  if (days === 1) return "yesterday";
+  if (days < 14) return `${days} days ago`;
+  if (days < 60) return `${Math.floor(days / 7)} weeks ago`;
+  return `${Math.floor(days / 30)} months ago`;
+}
+
+export function remoteLabel(remote: string | null | undefined): string {
+  switch (remote) {
+    case "remote_global": return "Remote (worldwide)";
+    case "remote_country": return "Remote (by country)";
+    case "hybrid": return "Hybrid";
+    case "onsite": return "On-site";
+    default: return "Remote unknown";
+  }
+}
+
+export function geoLabel(scope: string | null | undefined): string | null {
+  if (!scope || scope === "unknown") return null;
+  if (scope === "global") return "Open globally";
+  if (scope === "latam") return "Open to LatAm";
+  if (scope === "us") return "US only";
+  return scope.toUpperCase();
+}
+
+export function seniorityLabel(s: string | null | undefined): string | null {
+  if (!s || s === "unknown") return null;
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+export const cvLabel = (cv: string | null | undefined) =>
+  cv === "lead" ? "Lead CV" : "IC CV";
