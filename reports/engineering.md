@@ -37,6 +37,8 @@ A job that runs at 8 a.m. with nobody watching has to answer one question clearl
 
 ## 4. My deck was skipping every other posting
 
+*The deck was the one-card screen I used at the time. Decide is now a scrolling list with the detail in a side panel.*
+
 For a while, postings I hadn't decided on kept "reappearing" after a reload, as if I'd missed them. I had: the deck was **silently skipping every other card**.
 
 When I decided on a posting, two things happened. The list removed the decided posting, so the next one moved into its place, *and* the position counter moved forward one. Two steps per decision. Every second posting got jumped over without ever being shown.

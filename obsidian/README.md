@@ -31,7 +31,7 @@ came up in a call, what to prepare.
 
 The sync is one-way, database to vault, with a single exception — the `verdict:`
 field in a note's frontmatter is read back. So a posting can be decided from the
-phone, in Obsidian, on the train, and the deck will agree.
+phone, in Obsidian, on the train, and the app will agree.
 
 Do not edit anything else in `applications/`; the next sync overwrites it. Notes
 go under the `## My notes` heading, which the renderer preserves.

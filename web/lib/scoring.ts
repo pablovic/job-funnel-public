@@ -92,8 +92,8 @@ export function explainValue(key: string, v: number): string {
 export const FUNNEL_MEANING: Record<string, string> = {
   surfaced:
     "Postings that passed the automatic filters and reached you. Anything auto-rejected — staffing, on-site, US-only, wrong role family — is not counted here.",
-  shortlisted: "Marked yes or maybe in the deck — the quick filter, one glance each.",
-  kept: "Survived a close read on the apply list. Dropping one here is the third filter, and the cheapest place to say no after the deck.",
+  shortlisted: "Marked yes or maybe on the Decide screen — the quick filter, one glance each.",
+  kept: "Survived a close read on the Apply board. Dropping one here is the third filter, and the cheapest place to say no after Decide.",
   applied:
     "Logged as actually submitted. Raising this number is the point of the whole system.",
   answered: "Got any reply at all after applying.",
