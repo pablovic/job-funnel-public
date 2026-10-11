@@ -6,7 +6,7 @@
 
 My problem was never finding job postings. It was **evaluating them**. I was saving 11–15 roles a week and spending about **4 hours** reviewing them, even with Claude helping me read. Most of that time went into postings that turned out to be an obvious no: "remote" roles that actually required living in the US, staffing agencies, pay below what I need.
 
-So I built a pipeline that does that reading for me. Every weekday morning it pulls new roles from public job APIs, **filters out the ones I can't or shouldn't take, scores the rest**, and lines them up in a deck I can clear one keystroke at a time. The decision stays with me.
+So I built a pipeline that does that reading for me. Every weekday morning it pulls new roles from public job APIs, **filters out the ones I can't or shouldn't take, scores the rest**, and lines them up in a list I can clear one keystroke at a time. The decision stays with me.
 
 The practical result: **from 11–15 roles a week to a pool of 30–35, reviewed in 30–60 minutes instead of 4 hours.** That's more than twice the volume, in a quarter of the time or less.
 
@@ -23,7 +23,7 @@ That changed what I built. A tool that made better decisions for me would have s
 The pipeline is built around one idea: spend the cheapest effort first.
 
 - **Filter 1: rules and a score (automatic, zero cost).** Hard rules drop staffing agencies, onsite or hybrid roles, pay below my floor, roles outside my target families, and roles restricted to countries I can't work from. Everything that survives gets a 0–100 fit score from six weighted dimensions.
-- **Filter 2: the deck (seconds per role).** One posting at a time: yes, maybe or no, with a single keystroke, or a tap on my phone.
+- **Filter 2: Decide (seconds per role).** A scrolling list of scored postings. I open one for the detail, then yes, maybe or no, with a single keystroke, or a tap on my phone.
 - **Filter 3: the close read (minutes per role).** The yeses and maybes get read properly, and only then do I apply or drop.
 
 The third step mattered more than I expected. In my first version there were only two, and "maybe" had nowhere to go, so in practice it meant "never". Giving maybes their own place to land, and making "drop" reversible, is what made the quick pass trustworthy.
@@ -47,7 +47,7 @@ The score is for **sorting and discarding**, not deciding. That's the right job 
 
 ## 5. It runs without me
 
-The search runs as a **GitHub Actions workflow every weekday at 08:00**, against a Postgres database hosted on Neon. Each run writes a short summary I can read without opening the logs. In one recent run it checked 302 postings across 7 sources: 286 were roles it had already seen, 11 were filtered out by the rules, and 5 were new. That ratio is the point. Deduplication and filtering are what keep the deck short enough to clear in one sitting.
+The search runs as a **GitHub Actions workflow every weekday at 08:00**, against a Postgres database hosted on Neon. Each run writes a short summary I can read without opening the logs. In one recent run it checked 302 postings across 7 sources: 286 were roles it had already seen, 11 were filtered out by the rules, and 5 were new. That ratio is the point. Deduplication and filtering are what keep the list short enough to clear in one sitting.
 
 It's built to survive bad mornings: each source runs and saves on its own, so if one API is down, the others still deliver, and the run reports exactly which source failed. Tests run automatically on every change, so a mistake gets caught before it reaches the daily search.
 

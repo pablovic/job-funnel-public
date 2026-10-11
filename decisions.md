@@ -42,7 +42,7 @@ Every judgment call in this project, why I made it, and what I gave up. Most of 
 
 ### 5. Three filters, each more expensive than the last
 
-**Decision:** rules (automatic) → deck (seconds per role) → close read (minutes per role).
+**Decision:** rules (automatic) → Decide (seconds per role) → close read (minutes per role).
 
 **Why:** a two-step flow forced a bad choice. Either every "yes" in the quick pass became an application without a proper read, or I read everything properly and the quick pass saved nothing. The third step gives "maybe" somewhere to land. Without it, "maybe" quietly meant "never".
 
